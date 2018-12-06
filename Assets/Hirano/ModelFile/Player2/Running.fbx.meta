@@ -1,9 +1,9 @@
 fileFormatVersion: 2
-guid: 56381d033775e2848aeb4af8f4aaf0c8
+guid: da629e5d0ce253d48b5e3c8bf383e2ac
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
-    100000: CES_MasterHuman1
+    100000: CES_MasterHuman2
     100002: mixamorig:Head
     100004: mixamorig:HeadTop_End
     100006: mixamorig:Hips
@@ -38,7 +38,7 @@ ModelImporter:
     100064: mixamorig:Spine1
     100066: mixamorig:Spine2
     100068: //RootNode
-    400000: CES_MasterHuman1
+    400000: CES_MasterHuman2
     400002: mixamorig:Head
     400004: mixamorig:HeadTop_End
     400006: mixamorig:Hips
@@ -74,16 +74,16 @@ ModelImporter:
     400066: mixamorig:Spine2
     400068: //RootNode
     2100000: No Name
-    4300000: CES_MasterHuman1
-    7400000: mixamo.Failde
+    4300000: CES_MasterHuman2
+    7400000: mixamo.Dash
     9500000: //RootNode
-    13700000: CES_MasterHuman1
+    13700000: CES_MasterHuman2
   externalObjects:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: No Name
-    second: {fileID: 2100000, guid: 2e7c91da27d34d8458346f77745824ff, type: 2}
+    second: {fileID: 2100000, guid: 302795cf196e9034aa3fea92c8ba0076, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
@@ -112,10 +112,10 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: mixamo.Failde
+      name: mixamo.Dash
       takeName: mixamo.com
       firstFrame: 0
-      lastFrame: 110
+      lastFrame: 19
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
