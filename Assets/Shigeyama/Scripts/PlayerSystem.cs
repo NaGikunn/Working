@@ -24,11 +24,15 @@ public class PlayerSystem : MonoBehaviour
 
     Rigidbody rd;
 
+    BoxCollider[] colliders;
+
     float m_TurnAmount;
 
     float m_ForwardAmount;
 
     float moveSpeed = 7;
+
+    float dashSpeed = 30;
 
     public static Camera PlayerCam;
 
@@ -46,8 +50,8 @@ public class PlayerSystem : MonoBehaviour
     Vector3 itemLocalPosition;
     Vector3 itemLocalRotation;
 
-    Vector3 playerColliderSize;
-    Vector3 playerColliderCenter;
+    Vector3[] playerColliderSize = new Vector3[2];
+    Vector3[] playerColliderCenter = new Vector3[2];
 
     // Use this for initialization
     void Start()
@@ -58,14 +62,18 @@ public class PlayerSystem : MonoBehaviour
 
         rd = GetComponent<Rigidbody>();
 
+        colliders = GetComponents<BoxCollider>();
+
         DummyPlayerCam = new GameObject();
         DummyPlayerCam.name = "PLAYERCAM_" + gamePadNumber + "_DUMMY";
         DummyPlayerCam.transform.position = PlayerCam.transform.position;
         DummyPlayerCam.transform.eulerAngles = new Vector3(0f, PlayerCam.transform.eulerAngles.y, 0f);
         DummyPlayerCam.transform.parent = PlayerCam.transform;
 
-        playerColliderSize = gameObject.GetComponent<BoxCollider>().size;
-        playerColliderCenter = gameObject.GetComponent<BoxCollider>().center;
+        playerColliderSize[0] = colliders[0].size;
+        playerColliderCenter[0] = colliders[0].center;
+        playerColliderSize[1] = colliders[1].size;
+        playerColliderCenter[1] = colliders[1].center;
     }
 
     // Update is called once per frame
@@ -92,11 +100,14 @@ public class PlayerSystem : MonoBehaviour
         // つかむ
         if (GamePad.GetButtonDown(GamePad.Button.A, (GamePad.Index)gamePadNumber))
         {
-            Debug.Log("OnButton");
             // アイテムを持っていない場合
-            if (!isCatch && hitItem != null && hitItem.GetComponent<IItem>() != null)
+            if (!isCatch && hitItem != null && hitItem.GetComponent<IItem>() != null && !hitItem.GetComponent<IItem>().isItemCatch)
             {
                 CatchItem(hitItem);
+            }
+            else if (!isCatch && hitItem != null && hitItem.GetComponent<ItemBox>() != null)
+            {
+                CatchItem(hitItem.GetComponent<ItemBox>().Item());
             }
             // 持っている場合
             else if (isCatch)
@@ -105,12 +116,18 @@ public class PlayerSystem : MonoBehaviour
             }
         }
         // アクション
-        if (GamePad.GetButtonDown(GamePad.Button.B, (GamePad.Index)gamePadNumber))
+        if (GamePad.GetButtonDown(GamePad.Button.X, (GamePad.Index)gamePadNumber))
         {
-            if (hitItem != null && hitItem.GetComponent<IGimmick>() != null)
+            if (hitItem != null && hitItem.GetComponent<IGimmick>() != null && !hitItem.GetComponent<IGimmick>().GimmickIsEvent())
             {
                 hitItem.GetComponent<IGimmick>().PlayGimmick(gameObject);
             }
+        }
+        // ダッシュ
+        if (GamePad.GetButtonDown(GamePad.Button.B, (GamePad.Index)gamePadNumber))
+        {
+            Debug.Log("On B");
+            Dash();
         }
         // ポーズ
         if (GamePad.GetButtonDown(GamePad.Button.Start, (GamePad.Index)gamePadNumber))
@@ -167,7 +184,8 @@ public class PlayerSystem : MonoBehaviour
 
     private void OnTriggerStay(Collider collider)
     {
-        if (collider.gameObject.GetComponent<IItem>() != null || collider.gameObject.GetComponent<IGimmick>() != null)
+        if (collider.gameObject.GetComponent<IItem>() != null || collider.gameObject.GetComponent<IGimmick>() != null
+            || collider.gameObject.GetComponent<ItemBox>() != null)
         {
             hitItem = collider.gameObject;
         }
@@ -184,6 +202,8 @@ public class PlayerSystem : MonoBehaviour
     private void CatchItem(GameObject itemObject)
     {
         isCatch = true;
+        // アイテム側で持たれていることを保存
+        itemObject.GetComponent<IItem>().isItemCatch = true;
 
         catchItem = itemObject;
 
@@ -196,8 +216,11 @@ public class PlayerSystem : MonoBehaviour
         catchItem.transform.localRotation = Quaternion.Euler(catchItem.GetComponent<IItem>().LocalRotation());
         catchItem.transform.localPosition = catchItem.GetComponent<IItem>().LocalPosition();
 
-        gameObject.GetComponent<BoxCollider>().size = catchItem.GetComponent<IItem>().PlayerColliderSize();
-        gameObject.GetComponent<BoxCollider>().center = catchItem.GetComponent<IItem>().PlayerColliderCenter();
+        colliders[0].size = catchItem.GetComponent<IItem>().PlayerColliderSize();
+        colliders[0].center = catchItem.GetComponent<IItem>().PlayerColliderCenter();
+
+        colliders[1].size = catchItem.GetComponent<IItem>().PlayerColliderIsTriggerSize();
+        colliders[1].center = catchItem.GetComponent<IItem>().PlayerColliderIsTriggerCenter();
 
         // アイテムの機能を発動(なんとなくプレイヤーを渡しています)
         catchItem.GetComponent<IItem>().PlayItem(gameObject);
@@ -209,16 +232,19 @@ public class PlayerSystem : MonoBehaviour
     private void ReleaseItem()
     {
         isCatch = false;
+        catchItem.GetComponent<IItem>().isItemCatch = false;
+
+        colliders[0].size = playerColliderSize[0];
+        colliders[0].center = playerColliderCenter[0];
+
+        colliders[1].size = playerColliderSize[1];
+        colliders[1].center = playerColliderCenter[1];
 
         catchItem.GetComponent<Rigidbody>().useGravity = true;
         catchItem.GetComponent<Rigidbody>().isKinematic = false;
         catchItem.GetComponent<BoxCollider>().enabled = true;
 
-        gameObject.GetComponent<BoxCollider>().size = playerColliderSize;
-        gameObject.GetComponent<BoxCollider>().center = playerColliderCenter;
-
         catchItem.transform.parent = null;
-
         catchItem = null;
     }
 
@@ -235,5 +261,37 @@ public class PlayerSystem : MonoBehaviour
     public Vector3 ItemLocalRotation
     {
         set { itemLocalRotation = value; }
+    }
+
+    public GameObject GetCatchItem
+    {
+        get { return catchItem; }
+    }
+
+    public void DestroyItem()
+    {
+        isCatch = false;
+        catchItem.GetComponent<IItem>().isItemCatch = false;
+
+        colliders[0].size = playerColliderSize[0];
+        colliders[0].center = playerColliderCenter[0];
+
+        colliders[1].size = playerColliderSize[1];
+        colliders[1].center = playerColliderCenter[1];
+
+        catchItem.GetComponent<Rigidbody>().useGravity = true;
+        catchItem.GetComponent<Rigidbody>().isKinematic = false;
+        catchItem.GetComponent<BoxCollider>().enabled = true;
+
+        catchItem.transform.parent = null;
+
+        Destroy(catchItem);
+
+        catchItem = null;
+    }
+
+    void Dash()
+    {
+        rd.velocity = transform.forward * dashSpeed;
     }
 }

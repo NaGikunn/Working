@@ -20,7 +20,7 @@ public class AIGenerator : SingletonMonoBehaviour<AIGenerator>
     // Use this for initialization
     void Start()
     {
-        entryPos = GameObject.Find("EntryPos").transform.position;
+        entryPos = GameObject.Find("CustomerEntryPos").transform.position;
         timeInterval = 0;
     }
 
@@ -50,4 +50,5 @@ public class AIGenerator : SingletonMonoBehaviour<AIGenerator>
             }
         }
     }
+
 }

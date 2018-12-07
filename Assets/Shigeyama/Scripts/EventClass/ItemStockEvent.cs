@@ -26,6 +26,8 @@ public class ItemStockEvent : MonoBehaviour, IGimmick
     // 各場所が空いているかどうか
     bool[] isAIMoves;
 
+    bool isEvent;
+
     // 移動先の座標
     GameObject[] aiMovePosObjects;
 
@@ -149,12 +151,31 @@ public class ItemStockEvent : MonoBehaviour, IGimmick
 
         float timeInterval = 20;
 
+        float timer = 0;
+
         // 時間を計測
         StartCoroutine(eventAlertIcon.GetComponent<AlertIconManager>().EventAlertTimer(timeInterval));
-        yield return new WaitForSeconds(timeInterval);
 
+        while(timer < timeInterval)
+        {
+            timer += Time.deltaTime;
+
+            if (timer > timeInterval)
+            {
+                timer = timeInterval;
+            }
+
+            if (isEvent)
+            {
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        Debug.Log("スコア減少(棚)");
         // スコアの減少(クレーム)
-        //ScoreManager.Instance.ScoreDecrement();
+        ScoreManager.Instance.ScoreDecrement();
 
         yield return null;
     }
@@ -165,9 +186,12 @@ public class ItemStockEvent : MonoBehaviour, IGimmick
     /// <param name="player"> プレイヤーオブジェクト </param>
     public void PlayGimmick(GameObject player)
     {
-        if (stock < 1 && Vector3.Distance(player.transform.position, gameObject.transform.position) < 2)
+        if (stock < 1 && Vector3.Distance(player.transform.position, gameObject.transform.position) < 3
+            && player.GetComponent<PlayerSystem>().GetCatchItem != null
+            && player.GetComponent<PlayerSystem>().GetCatchItem.GetComponent<CardboardItem>())
         {
-            player.GetComponent<PlayerSystem>().IsEvent = true;
+            isEvent = true;
+            player.GetComponent<PlayerSystem>().IsEvent = isEvent;
             StartCoroutine(AddStock(player));
         }
     }
@@ -179,7 +203,6 @@ public class ItemStockEvent : MonoBehaviour, IGimmick
     /// <returns></returns>
     IEnumerator AddStock(GameObject player)
     {
-        Debug.Log("Addstock");
 
         float timeInterval = 2;
 
@@ -192,7 +215,18 @@ public class ItemStockEvent : MonoBehaviour, IGimmick
         Destroy(eventAlertIcon);
         eventAlertIcon = null;
 
+        player.GetComponent<PlayerSystem>().DestroyItem();
+
+        // スコア加算
+        ScoreManager.Instance.ScoreIncrement();
+
         // プレイヤーが動けるか判断する変数ギミック終了時「false」に設定
-        player.GetComponent<PlayerSystem>().IsEvent = false;
+        isEvent = false;
+        player.GetComponent<PlayerSystem>().IsEvent = isEvent;
+    }
+
+    public bool GimmickIsEvent()
+    {
+        return isEvent;
     }
 }

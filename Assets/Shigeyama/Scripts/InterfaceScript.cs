@@ -5,6 +5,8 @@ using UnityEngine;
 public interface IGimmick
 {
     void PlayGimmick(GameObject player);
+
+    bool GimmickIsEvent();
 }
 
 public interface IItem
@@ -18,4 +20,13 @@ public interface IItem
 
     Vector3 PlayerColliderSize();
     Vector3 PlayerColliderCenter();
+
+    Vector3 PlayerColliderIsTriggerSize();
+    Vector3 PlayerColliderIsTriggerCenter();
+
+    bool isItemCatch
+    {
+        get;
+        set;
+    }
 }

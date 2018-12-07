@@ -32,6 +32,8 @@ public class RegisterEvent : MonoBehaviour, IGimmick
 
     bool updateStop = false;
 
+    bool isEvent = false;
+
     void Awake()
     {
         isAIMoves = new bool[transform.childCount];
@@ -117,12 +119,31 @@ public class RegisterEvent : MonoBehaviour, IGimmick
 
         float timeInterval = 20;
 
+        float timer = 0;
+
         // 時間を計測
         StartCoroutine(eventAlertIcon.GetComponent<AlertIconManager>().EventAlertTimer(timeInterval));
-        yield return new WaitForSeconds(timeInterval);
 
+        while (timer < timeInterval)
+        {
+            timer += Time.deltaTime;
+
+            if (timer > timeInterval)
+            {
+                timer = timeInterval;
+            }
+
+            if (isEvent)
+            {
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        Debug.Log("スコア減少(レジ)");
         // スコアの減少(クレーム)
-        //ScoreManager.Instance.ScoreDecrement();
+        ScoreManager.Instance.ScoreDecrement();
 
         yield return null;
     }
@@ -133,7 +154,8 @@ public class RegisterEvent : MonoBehaviour, IGimmick
     {
         if (isCustomer && eventAlertIcon != null)
         {
-            player.GetComponent<PlayerSystem>().IsEvent = true;
+            isEvent = true;
+            player.GetComponent<PlayerSystem>().IsEvent = isEvent;
 
             StartCoroutine(PlayRegister(player));
         }
@@ -149,12 +171,16 @@ public class RegisterEvent : MonoBehaviour, IGimmick
         Destroy(eventAlertIcon);
         eventAlertIcon = null;
 
+        // スコア加算
+        ScoreManager.Instance.ScoreIncrement();
+
         isPlayerActionEnd = true;
         isCustomer = false;
         isAIMoves[0] = false;
         updateStop = false;
         customerCounter--;
-        player.GetComponent<PlayerSystem>().IsEvent = false;
+        isEvent = false;
+        player.GetComponent<PlayerSystem>().IsEvent = isEvent;
         yield return null;
     }
 
@@ -168,5 +194,10 @@ public class RegisterEvent : MonoBehaviour, IGimmick
     {
         get { return isPlayerActionEnd; }
         set { isPlayerActionEnd = value; } 
+    }
+
+    public bool GimmickIsEvent()
+    {
+        return isEvent;
     }
 }

@@ -94,8 +94,6 @@ public class CustomerAI : MonoBehaviour
                 RegisterAction();
                 break;
         }
-
-        Debug.Log(state);
     }
 
     /// <summary>
@@ -183,6 +181,11 @@ public class CustomerAI : MonoBehaviour
     {
         float timeInterval = 2.0f;
 
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation
+                    (new Vector3(actionObj.transform.position.x - transform.position.x,
+                    0,
+                    actionObj.transform.position.z - transform.position.z)), 0.1f);
+
         if (timer > timeInterval)
         {
             actionObj.GetComponent<ItemStockEvent>().StockDecrement(1);
@@ -199,7 +202,21 @@ public class CustomerAI : MonoBehaviour
     /// </summary>
     void Accident()
     {
+        int rnd = Random.Range(0, 5);
 
+        switch (rnd)
+        {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+        }
     }
 
     void RegisterMove()
@@ -222,6 +239,11 @@ public class CustomerAI : MonoBehaviour
 
     void RegisterIdle()
     {
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation
+                    (new Vector3(actionObj.transform.position.x - transform.position.x,
+                    0,
+                    actionObj.transform.position.z - transform.position.z)), 0.1f);
+
         if (registerNum <= 0)
         {
             actionObj.GetComponent<RegisterEvent>().IsPlayerActionEnd = false;
@@ -237,13 +259,18 @@ public class CustomerAI : MonoBehaviour
 
     void RegisterAction()
     {
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation
+                    (new Vector3(actionObj.transform.position.x - transform.position.x,
+                    0,
+                    actionObj.transform.position.z - transform.position.z)), 0.1f);
+
         actionObj.GetComponent<RegisterEvent>().IsCustomer = true;
 
         if (actionObj.GetComponent<RegisterEvent>().IsPlayerActionEnd)
         {
             actionObj.GetComponent<RegisterEvent>().IsCustomer = false;
             isMoveEnd = true;
-            movePosObj = GameObject.Find("EntryPos");
+            movePosObj = GameObject.Find("CustomerEntryPos");
             state = CustomerAIState.REGISTERMOVE;
         }
     }

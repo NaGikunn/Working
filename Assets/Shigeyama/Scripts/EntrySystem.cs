@@ -14,7 +14,8 @@ public class EntrySystem : SingletonMonoBehaviour<EntrySystem>
     }
 
     // 実際は-1スタート
-    public static int[] playerNumber = { 1, 2, 3, 4 };
+    public static int[] playerNumber = { 1, -1, -1, -1 };
+    //public static int[] playerNumber = { -1, -1, -1, -1 };
 
     int playerCount = 0;
 
@@ -33,9 +34,27 @@ public class EntrySystem : SingletonMonoBehaviour<EntrySystem>
             for (int i = 1; i < 5; i++)
             {
                 //各プレイヤーの対応コントローラーを設定する
-                if (GamePad.GetButtonDown(GamePad.Button.B, (GamePad.Index)i))
+                if (GamePad.GetButtonDown(GamePad.Button.A, (GamePad.Index)i))
                 {
                     SetPlayerNumber((PLAYERNUM)i);
+                }
+            }
+        }
+
+        if (playerCount > 0)
+        {
+            // int = 0 かも?
+            for (int i = 1; i < 5; i++)
+            {
+                //各プレイヤーの対応コントローラーを解除する
+                if (GamePad.GetButtonDown(GamePad.Button.B, (GamePad.Index)i))
+                {
+                    ReleasePlayerNumber((PLAYERNUM)i);
+                }
+
+                if (GamePad.GetButtonDown(GamePad.Button.Y, (GamePad.Index)i))
+                {
+                    ReleasePlayerNumber((PLAYERNUM)i);
                 }
             }
         }
@@ -64,7 +83,45 @@ public class EntrySystem : SingletonMonoBehaviour<EntrySystem>
 
             Debug.Log((PLAYERNUM)playerCount + " Player 登録完了");
 
+            EntryCanvas.Instance.EntryDone(playerCount);
+
             playerCount++;
+        }
+    }
+
+    private void ReleasePlayerNumber(PLAYERNUM _player)
+    {
+        for (int i = 0; i < playerNumber.Length; i++)
+        {
+            if ((int)_player == playerNumber[i])
+            {
+                playerNumber[i] = -1;
+                playerCount--;
+            }
+        }
+
+        List<int> array = new List<int>();
+        int[] temp = { -1, -1, -1, -1 };
+
+        for (int i = 0; i < playerNumber.Length; i++)
+        {
+            if (playerNumber[i] != -1)
+            {
+                array.Add(playerNumber[i]);
+            }
+        }
+
+        for (int i = 0; i < array.Count; i++)
+        {
+            temp[i] = array[i];
+        }
+
+        for (int i = 0; i < temp.Length; i++)
+        {
+            playerNumber[i] = temp[i];
+            Debug.Log(playerNumber[i]);
+
+            EntryCanvas.Instance.EntryRelease(i, playerNumber[i]);
         }
     }
 }
