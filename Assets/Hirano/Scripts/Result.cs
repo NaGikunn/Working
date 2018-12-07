@@ -12,6 +12,8 @@ public class Result : MonoBehaviour
     [SerializeField]
     private Animator anim;
     [SerializeField]
+    private Animator anim2;
+    [SerializeField]
     private Text ResultLabel;
 
 	// Use this for initialization
@@ -37,11 +39,13 @@ public class Result : MonoBehaviour
     {
         ResultLabel.text = "CLEAR";
         anim.SetBool("clear",true);
+        anim2.SetBool("clear", true);
     }
 
     void FailedScore()
     {
         ResultLabel.text = "FAILDE";
         anim.SetBool("failde", true);
+        anim2.SetBool("failde", true);
     }
 }
