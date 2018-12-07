@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 99b3cf982c2d58341b9f3160b479a8d7
+guid: 3963246c85ce6234a935baf14ca84272
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
@@ -8,13 +8,8 @@ ModelImporter:
     2100000: palette
     2300000: //RootNode
     3300000: //RootNode
-    4300000: Shelf None
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: palette
-    second: {fileID: 2100000, guid: 13216787f72b8e24ca039b2fd2991592, type: 2}
+    4300000: Toilet
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0
